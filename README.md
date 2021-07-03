@@ -6,6 +6,5 @@ Dependencies:
 ```
     ImageMagic
     Feh
-    
 ```
-![image](https://user-images.githubusercontent.com/64472354/124350529-b7f14180-dbe4-11eb-9719-53a5b9fde178.png)
+![animatedGIF](https://user-images.githubusercontent.com/64472354/124351195-74003b80-dbe8-11eb-8d37-b758eb74e2f8.gif)
