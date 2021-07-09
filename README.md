@@ -11,7 +11,7 @@ Dependencies:
 Install:
 ```
     git clone https://github.com/Manas140/FP.git && cd FP
-    ./install -i
+    sudo make install
 ```
 
 Usage:

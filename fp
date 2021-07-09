@@ -45,10 +45,12 @@ main() {
     type -p 'convert' &>/dev/null || echo -e "error: Could not find 'convert', Make sure you have ImageMagick installed."
     case "$(uname -s)" in
     Linux*) open_command="xdg-open"
-    type -p 'xdg-open' &>/dev/null || echo -e "error: Could not find 'xdg-open', Make sure you have xdg-utils installed.\n Else provide a image viewer with -iv flag"
+        type -p 'xdg-open' &>/dev/null || echo -e "error: Could not find 'xdg-open', Make sure you have xdg-utils installed.\n Else provide a image viewer with -iv flag"
     ;;
-    Darwin*) open_command="open";;
+    Darwin*) open_command="open"
+    ;;
     *) echo -e [*] Os Not Supported!
+        break
     esac
 }
 
