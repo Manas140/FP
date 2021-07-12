@@ -34,7 +34,6 @@ n o p q r s t u v w x y z
 #variables
 window_size="600x400"
 font_size="15"
-font="$HOME/.fonts/FiraCode-Bold.ttf"
 foreground="#c1c1c1"
 background="#1c1c1c"
 background="xc:$background"
@@ -44,12 +43,14 @@ text=$help_text
 main() {
     type -p 'convert' &>/dev/null || echo -e "error: Could not find 'convert', Make sure you have ImageMagick installed."
     case "$(uname -s)" in
-    Linux*) open_command="xdg-open"
+        Linux*) open_command="xdg-open"
         type -p 'xdg-open' &>/dev/null || echo -e "error: Could not find 'xdg-open', Make sure you have xdg-utils installed.\n Else provide a image viewer with -iv flag"
-    ;;
-    Darwin*) open_command="open"
-    ;;
-    *) echo -e [*] Os Not Supported!
+        font="$HOME/.fonts/FiraCode-Bold.ttf"
+        ;;
+        Darwin*) open_command="open"
+        font="$HOME/Library/Fonts/FiraCode-Bold.ttf"
+        ;;
+        *) echo -e [*] Os Not Supported!
         break
     esac
 }
