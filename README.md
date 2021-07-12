@@ -6,10 +6,10 @@ Simple Customizable FontPreview Bash Script.
   <img width="460" height="300" src="https://user-images.githubusercontent.com/64472354/124871166-3e29d100-dfb3-11eb-81a7-b1046dc2403a.gif">
 </p>
 
-FP (Font Preview) is a simple customizable bash script to view font in any image viewer, which makes use of imagemagick's `convert` for generating preview image.
+FP (Font Preview) is a simple customizable bash script to view font in any image viewer, which makes use of Imagemagick's `convert` for generating preview image.
 Dependencies:
 ```
-    ImageMagic
+    ImageMagick
     Any Image Viewer
 ```
 
