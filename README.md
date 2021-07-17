@@ -9,14 +9,13 @@ Simple Customizable FontPreview Bash Script.
 FP (Font Preview) is a simple customizable bash script to view font in any image viewer, which makes use of imagemagick's `convert` for generating preview image.
 Dependencies:
 ```
-    ImageMagic
-    Any Image Viewer
+    ImageMagick
 ```
 
 Install:
 ```
     git clone https://github.com/Manas140/FP.git && cd FP
-    sudo make install
+    make install
 ```
 
 Usage:
