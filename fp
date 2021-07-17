@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 #constants
 name="FP"
@@ -9,7 +9,7 @@ $name v$version : Font Preview
 Arguments:
 
 -h, --help                 show this help page.
--ff, --fontfile             path/to/font/files.
+-ff, --fontfiles            path/to/font/files.
 -fs, --fontsize                      font size.
 -fg, --foreground             foreground color.
 -bg, --background             background color.
@@ -34,35 +34,45 @@ n o p q r s t u v w x y z
 #variables
 window_size="600x400"
 font_size="15"
-font="$HOME/.fonts/FiraCode-Bold.ttf"
 foreground="#c1c1c1"
 background="#1c1c1c"
 background="xc:$background"
 text=$help_text
+preview_files="/tmp/fp/*.png"
 
 #functions
 main() {
     type -p 'convert' &>/dev/null || echo -e "error: Could not find 'convert', Make sure you have ImageMagick installed."
     case "$(uname -s)" in
     Linux*) open_command="xdg-open"
+        fonts=$HOME/.fonts/FiraCode-Bold.ttf
         type -p 'xdg-open' &>/dev/null || echo -e "error: Could not find 'xdg-open', Make sure you have xdg-utils installed.\n Else provide a image viewer with -iv flag"
     ;;
     Darwin*) open_command="open"
+        fonts=$HOME/Library/Fonts/FiraCode-Bold.ttf
     ;;
     *) echo -e [*] Os Not Supported!
-        break
+        exit;;
     esac
 }
 
 preview() {
-    rm /tmp/$name-*
-    font_name=$( echo "$font" | awk -F/ '{print $(NF)}')
-    output_file="/tmp/$name-$font_name.png"
-    convert -size "$window_size" -fill "$foreground" "$background"\
-    -gravity northwest -font "$font" -annotate +10+10 "$font_name"\
-    -gravity northeast -font "$font" -annotate +10+10 "$font"\
-    -gravity center -pointsize "$font_size" -font "$font" -annotate +0+20 "$text"\
-    -flatten "$output_file" && $open_command "$output_file"
+    if [ -d $fonts ]; then
+        fonts=$fonts*.ttf
+    else
+        fonts=$fonts
+    fi
+    rm -r /tmp/fp
+    mkdir /tmp/fp
+    for font in ${fonts[@]}; do
+        font_name=$( echo "$font" | awk -F/ '{print $(NF)}')
+        convert -size "$window_size" -fill "$foreground" "$background"\
+        -gravity northwest -font "$font" -annotate +10+10 "$font_name"\
+        -gravity northeast -font "$font" -annotate +10+10 "$font"\
+        -gravity center -pointsize "$font_size" -font "$font" -annotate +0+20 "$text"\
+        -flatten "/tmp/fp/$font_name.png";
+    done
+    $open_command "/tmp/fp/$font_name.png"
 }
 
 main
@@ -70,8 +80,8 @@ main
 #agruments
 while true; do
     case "$1" in
-        -ff|--fontfile) font="$2"
-        text=$preview_text
+        -ff|--fontfile) fonts="$2"
+            text=$preview_text
         shift
         ;;
         -bg|--background) background="xc:$2"
