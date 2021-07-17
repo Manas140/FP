@@ -2,7 +2,7 @@
 
 #constants
 name="FP"
-version="0.2"
+version="0.3"
 help_text="
 $name v$version : Font Preview
 
