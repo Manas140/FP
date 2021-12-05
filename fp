@@ -1,28 +1,10 @@
 #!/bin/sh
 
-#just incase for non sh error
-printf "${cr}"
-#constants
-name="FP"
-version="0.4"
-help_text="
-$name v$version : Font Preview
-
-Arguments:
-
--h, --help                 show this help page.
--fs, --fontsize                      font size.
--fg, --foreground             foreground color.
--bg, --background             background color.
--ws, --windowsize                  window size.
--pt, --previewtext                preview text.
--lf, --linear-fg    linear foreground gradient.
--lb, --linear-bg    linear background gradient.
--rf, --radial-fg    radial foreground gradient.
--rb, --radial-bg    radial background gradient.
--iv, --imageviewer                image viewer.
-"
-preview_text="
+# variables
+cr="\033[1;31m"
+cg="\033[1;32m"
+cb="\033[1;34m"
+text="
 A B C D E F G H I J K L M
 N O P Q R S T U V W X Y Z
 a b c d e f g h i j k l m
@@ -31,81 +13,85 @@ n o p q r s t u v w x y z
 ' \" ? ! ( ~ ) [ # ] { @ }
 / & < - + = > $ : ; , . *
 "
-
-#variables
 window_size="600x400"
-font_size="15"
-foreground="#c8c8c8"
-background="#181818"
+font_size="20"
+foreground="#e8e3e3"
+background="#151515"
 background="xc:$background"
-text=$help_text
-preview_files="/tmp/fp/*.png"
-cr="\033[1;31m"
-cg="\033[1;32m"
-cb="\033[1;34m"
+imageviewer="xdg-open"
 
-#functions
-main() {
-  type 'convert' >/dev/null || printf "${cr}Error: Could not find 'convert', Make sure you have ImageMagick installed.\n"
-  case "$(uname -s)" in 
-    Linux*) open_command="xdg-open"
-      fonts=$HOME/.fonts/FiraCode-Bold.ttf
-      type 'xdg-open' >/dev/null || printf "${cr}Error: Could not find 'xdg-open', Make sure you have xdg-utils installed.\nElse provide a image viewer with -iv flag\n";;
-    Darwin*) open_command="open"
-      fonts=$HOME/Library/Fonts/FiraCode-Bold.ttf;;
-    *) printf "${cr}Error: Os Not Supported\n"
-      exit;;
-  esac
+#function
+help() {
+  printf "${cg}FP : Font Preview
+Usage: fp ${cb}-[fs|fg|bg|ws|pt|lf|lb|rf|rb|iv|h] font_path
+   ${cb}-h: ${cg}help
+  ${cb}-fs: ${cg}font size.
+  ${cb}-fg: ${cg}foreground color.
+  ${cb}-bg: ${cg}background color.
+  ${cb}-ws: ${cg}window size.
+  ${cb}-pt: ${cg}preview text.
+  ${cb}-lf: ${cg}linear foreground gradient.
+  ${cb}-lb: ${cg}linear background gradient.
+  ${cb}-rf: ${cg}radial foreground gradient.
+  ${cb}-rb: ${cg}radial background gradient.
+  ${cb}-iv: ${cg}image viewer.
+${cr}Report issues at: https://github.com/manas140/fp/
+" && exit
 }
 
-preview() {
-  if [ -d $fonts ]; then
-    fonts=$fonts/*.*
+check_dependencies() {
+  if ! $(type 'convert' >/dev/null); then
+    printf "${cr}Error: Could not find 'convert', Make sure you have ImageMagick installed.\n" && exit 1
   fi
-  rm -r /tmp/fp
-  mkdir /tmp/fp
+  case "$(cat /proc/version)" in
+    *Linux*)
+      if $(type 'xdg-open' >/dev/null); then
+        open_command="xdg-open"
+      else
+        printf "${cr}Error: Could not find 'xdg-open', Make sure you have xdg-utils installed.\n"
+      fi;;
+    *Darwin*) open_command="open";;
+    *) printf "${cr}Error: Os Not Supported\n" && exit 1;;
+  esac
+  if [ $open_command = "" ]; then
+    printf "${cr}Error: No ImageViewer Found, Try Using '-iv open_command' flag\n" && exit 1;
+  fi
+}
+
+main() {
+  if ! [ -d "$fonts" ] && [ -f "$fonts" ]; then
+    printf "${cr}Error: Not A Valid Font '$fonts'\n" && exit 1;
+  fi
+  rm -r /tmp/fp 2>/dev/null
+  mkdir -p /tmp/fp
   for font in $fonts; do
     printf "${cr}"
-    font_name=$( basename $font)
+    c=$(( $c + 1))
     convert -size "$window_size" -fill "$foreground" "$background"\
-    -gravity northwest -font "$font" -annotate +10+10 "$font_name"\
-    -gravity northeast -font "$font" -annotate +10+10 "$font"\
-    -gravity center -pointsize "$font_size" -font "$font" -annotate +0+20 "$text"\
-    -flatten "/tmp/fp/$font_name.png" 
-    printf "${cg}Font: $font\n"
+    -gravity southwest -font "$font" -annotate +10+10 "$font"\
+    -gravity center -pointsize "$font_size" -font "$font" -annotate +0+0 "$text"\
+    -flatten "/tmp/fp/$c.png" && printf "${cg}Font: $font\n"
   done
-  $open_command "/tmp/fp/$font_name.png"
+  $open_command /tmp/fp/1.png
 }
 
-main
-#agruments
+check_dependencies
 while true; do
   case "$1" in
-    -bg|--background) background="xc:$2"
-      shift;;
-    -fg|--foreground) foreground="$2"
-      shift;;
-    -fs|--fontsize) font_size="$2"
-      shift;;
-    -ws|--windowsize) window_size="$2"
-      shift;;
-    -pt|--previewtext) text="$2"
-      shift;;
-    -lf|--linear-fg) foreground="gradient:$2"
-      shift;;
-    -rf|--radial-fg) foreground="radial-gradient:$2"
-      shift;;
-    -lb|--linear-bg) background="gradient:$2"
-      shift;;
-    -rb|--radial-bg) background="radial-gradient:$2"
-      shift;;
-    -iv|--imageviewer) open_command="$2"
-      shift;;
-    -h|--help) text=$help_text && printf "${cr}Report issues at: https://github.com/manas140/fp/\n";;
     "") break;;
-    *) fonts="$1"
-      text="$preview_text";;
+    -bg) background="xc:$2"; shift;;
+    -fg) foreground="$2"; shift;;
+    -fs) font_size="$2"; shift;;
+    -ws) window_size="$2"; shift;;
+    -pt) text="$2"; shift;;
+    -lf) foreground="gradient:$2"; shift;;
+    -rf) foreground="radial-gradient:$2"; shift;;
+    -lb) background="gradient:$2"; shift;;
+    -rb) background="radial-gradient:$2"; shift;;
+    -iv) open_command="$2"; shift;;
+    *-h*) help;;
+    *) fonts="$fonts $(ls $1)";;
   esac
   shift
 done
-preview
+main

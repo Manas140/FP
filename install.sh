@@ -11,8 +11,7 @@ esac
 printf "${cr}"
 case $1 in 
   *u*) sudo rm -r /usr/local/bin/fp && printf "${cg}[*] FP Uninstalled\n${cr}";;
-  *i*) cp *.ttf $fontdir && printf "${cg}[*] Fonts Installed\n${cr}"
-    sudo cp fp /usr/local/bin/fp && printf "${cg}[*] FP Installed\n${cr}";;
+  *i*) sudo cp fp /usr/local/bin/fp && printf "${cg}[*] FP Installed\n${cr}";;
   *) printf "${cg}Usage: ./install.sh ${cb}[i|u]${cb}
     i:${cg} Install
     ${cb}u:${cg} Uninstall\n"
