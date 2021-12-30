@@ -35,6 +35,7 @@ Usage: fp ${cb}-[fs|fg|bg|ws|pt|lf|lb|rf|rb|iv|h] font_path
   ${cb}-rf: ${cg}radial foreground gradient.
   ${cb}-rb: ${cg}radial background gradient.
   ${cb}-iv: ${cg}image viewer.
+${cg}Example: fp ${cb}-fs 25 -fg #151515 -bg #E8E3E3 -ws 400x200 -pt \"Hello World\" ~/.fonts/Rubik-Bold.ttf
 ${cr}Report issues at: https://github.com/manas140/fp/
 " && exit
 }
@@ -43,7 +44,7 @@ check_dependencies() {
   if ! $(type 'convert' >/dev/null); then
     printf "${cr}Error: Could not find 'convert', Make sure you have ImageMagick installed.\n" && exit 1
   fi
-  case "$(cat /proc/version)" in
+  case "$(read -r os _ < /proc/version && printf "$os\n")" in
     *Linux*)
       if $(type 'xdg-open' >/dev/null); then
         open_command="xdg-open"
@@ -59,23 +60,26 @@ check_dependencies() {
 }
 
 main() {
-  if ! [ -d "$fonts" ] && [ -f "$fonts" ]; then
-    printf "${cr}Error: Not A Valid Font '$fonts'\n" && exit 1;
-  fi
+  check_dependencies
   rm -r /tmp/fp 2>/dev/null
   mkdir -p /tmp/fp
-  for font in $fonts; do
+  c=1
+  while read -r font; do
     printf "${cr}"
-    c=$(( $c + 1))
-    convert -size "$window_size" -fill "$foreground" "$background"\
-    -gravity southwest -font "$font" -annotate +10+10 "$font"\
-    -gravity center -pointsize "$font_size" -font "$font" -annotate +0+0 "$text"\
-    -flatten "/tmp/fp/$c.png" && printf "${cg}Font: $font\n"
-  done
-  $open_command /tmp/fp/1.png
+    if [ -f "$font" ]; then
+      convert -size "$window_size" -fill "$foreground" "$background"\
+      -gravity southwest -font "$font" -annotate +10+10 "$font"\
+      -gravity center -pointsize "$font_size" -font "$font" -annotate +0+0 "$text"\
+      -flatten "/tmp/fp/$c.png" && c=$(( $c + 1)) && printf "${cg}Font: $font\n"
+    else
+      printf "${cr}Error: Not A Valid Font '$font'\n";
+    fi
+  done <<-EOF
+$fonts
+EOF
+  $open_command /tmp/fp/1.png 2>/dev/null
 }
 
-check_dependencies
 while true; do
   case "$1" in
     "") break;;
@@ -90,7 +94,7 @@ while true; do
     -rb) background="radial-gradient:$2"; shift;;
     -iv) open_command="$2"; shift;;
     *-h*) help;;
-    *) fonts="$fonts $(ls $1)";;
+    *) fonts=$(printf "$1\n$fonts");;
   esac
   shift
 done
